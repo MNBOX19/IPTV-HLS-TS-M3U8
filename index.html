@@ -121,11 +121,14 @@
         
         #player-container { width:100%; height:100%; background:#000; display: flex; align-items: center; justify-content: center; }
         
-        /* POR PADRÃO DEIXAMOS FILL (Para VODS e NAT) */
+        /* FORÇA ACELERAÇÃO DE HARDWARE E CORRIGE REPAINT EM TVS ANTIGAS */
         video { 
             width: 100%; height: 100%; 
             object-fit: fill; 
             background: #000; z-index: 1;
+            transform: translateZ(0); /* Aceleração via GPU */
+            backface-visibility: hidden;
+            perspective: 1000;
         }
 
         .buffer-overlay {
@@ -308,10 +311,10 @@
 
         var PlayerEngine = {
             video: null, url: null, monitorTimer: null, lastTime: 0, stallCount: 0, 
-            retryCount: 0, maxRetries: 5, liveMaxRetries: 999999, isBuffering: false,
+            retryCount: 0, maxRetries: 3, liveMaxRetries: 10, isBuffering: false,
             paranoiaTimer: null,
             hlsEngine: null, mpegtsEngine: null, 
-            useMSE: false, // Flag de controle nativo vs MSE
+            useMSE: false,
 
             init: function() { this.bindVideo(); },
 
@@ -359,8 +362,9 @@
                     newVid.id = 'player';
                     newVid.style.width = '100%';
                     newVid.style.height = '100%';
-                    newVid.style.objectFit = 'fill'; // POR PADRÃO CRIA EM FILL
+                    newVid.style.objectFit = 'fill'; 
                     newVid.style.background = '#000';
+                    newVid.style.transform = 'translateZ(0)'; // Aceleração GPU
                     newVid.playsInline = true;
                     newVid.webkitPlaysInline = true;
                     container.appendChild(newVid);
@@ -387,12 +391,20 @@
 
                 if(!this.video) return;
 
-                // LÓGICA DE PROPORÇÃO: Se for MSE (MPEGTS/HLS.JS) fica contain (16:9). Se for Nativo ou VOD, fica fill.
+                // CORREÇÃO DA JANELA: Força a repintura no navegador para o object-fit aplicar na hora
                 this.video.style.objectFit = this.useMSE ? 'contain' : 'fill';
+                void this.video.offsetWidth; // Truque mágico para browsers antigos
 
                 if (this.useMSE) {
                     if (url.indexOf('.m3u8') > -1 && typeof Hls !== 'undefined' && Hls.isSupported()) {
-                        this.hlsEngine = new Hls({ maxBufferLength: 10, maxMaxBufferLength: 20, enableWorker: false });
+                        // OTIMIZAÇÃO EXTREMA DE RAM PARA TVS FRACAS
+                        this.hlsEngine = new Hls({ 
+                            maxBufferLength: 5, // Metade do anterior
+                            maxMaxBufferLength: 10,
+                            enableWorker: false,
+                            capLevelToPlayerSize: true, // Impede de puxar 4K e travar a TV
+                            lowLatencyMode: false 
+                        });
                         this.hlsEngine.loadSource(url);
                         this.hlsEngine.attachMedia(this.video);
                         this.hlsEngine.on(Hls.Events.MANIFEST_PARSED, function() { safePlay(PlayerEngine.video); });
@@ -404,18 +416,23 @@
                             }
                         });
                     } else if (url.indexOf('.ts') > -1 && typeof mpegts !== 'undefined' && mpegts.isSupported()) {
-                        this.mpegtsEngine = mpegts.createPlayer({ type: 'mse', isLive: true, url: url }, { liveBufferLatencyChasing: true, liveBufferLatencyMaxLatency: 15, liveBufferLatencyMinRemain: 2 });
+                        // AFROUXA O MPEGTS PARA NÃO FRITAR A CPU
+                        this.mpegtsEngine = mpegts.createPlayer({ type: 'mse', isLive: true, url: url }, { 
+                            liveBufferLatencyChasing: false, // Desligado para evitar stutter
+                            enableStashBuffer: true 
+                        });
                         this.mpegtsEngine.attachMediaElement(this.video);
                         this.mpegtsEngine.load();
                         this.mpegtsEngine.play().catch(function(){});
                         this.mpegtsEngine.on(mpegts.Events.ERROR, function(err, errDetails) { PlayerEngine.handleError(true); });
                     } else {
-                        // Fallback se o motor falhar
                         this.video.style.objectFit = 'fill';
+                        void this.video.offsetWidth;
                         this.video.src = url; safePlay(this.video);
                     }
                 } else {
-                    // MODO NATIVO E VOD (Sempre Fill)
+                    this.video.style.objectFit = 'fill';
+                    void this.video.offsetWidth;
                     this.video.src = url; safePlay(this.video);
                 }
             },
@@ -443,13 +460,14 @@
             
             startMonitor: function() {
                 this.stopMonitor();
+                // MONITOR MAIS TOLERANTE: Checa a cada 3s, tolera engasgos normais de TV fraca
                 this.monitorTimer = setInterval(function() {
                     var v = PlayerEngine.video; if(!v || !PlayerEngine.url || v.paused) return;
                     
-                    if(Math.abs(v.currentTime - PlayerEngine.lastTime) < 0.1) {
+                    if(Math.abs(v.currentTime - PlayerEngine.lastTime) < 0.5) { // Era 0.1, agora é 0.5
                         PlayerEngine.stallCount++;
-                        if(PlayerEngine.stallCount > 5) { PlayerEngine.showBuffer('SINAL FRACO...'); }
-                        if(PlayerEngine.stallCount > 10) { 
+                        if(PlayerEngine.stallCount > 2) { PlayerEngine.showBuffer('CARREGANDO...'); } // Menos agressivo no texto
+                        if(PlayerEngine.stallCount > 5) { // Demora mais para desistir
                             PlayerEngine.stallCount = 0; 
                             PlayerEngine.handleError(true); 
                         }
@@ -458,7 +476,7 @@
                         PlayerEngine.lastTime = v.currentTime; 
                         if(PlayerEngine.isBuffering) PlayerEngine.hideBuffer();
                     }
-                }, 1500);
+                }, 3000); // Dobramos o tempo de checagem para poupar CPU
             },
             stopMonitor: function() { if(this.monitorTimer) clearInterval(this.monitorTimer); },
 
@@ -481,11 +499,9 @@
                     this.retryCount++;
                     this.showBuffer('RECONECTANDO (' + this.retryCount + ')...');
 
-                    if(this.retryCount > 3 || isStall) { this.resetDOM(); }
+                    if(this.retryCount > 2 || isStall) { this.resetDOM(); }
                     
-                    var delay = 1000;
-                    if(this.retryCount > 5) delay = 3000;
-                    // Passa undefined pro useMSE para manter a escolha atual do usuário
+                    var delay = 2000; // Tempo de respiro maior para a TV esvaziar a RAM
                     setTimeout(function() { PlayerEngine.play(PlayerEngine.url); }, delay);
                 } else {
                     this.hardStop();
@@ -497,7 +513,7 @@
                 var currentUrl = this.url; 
                 this.hardStop(); 
                 this.retryCount = 0; 
-                setTimeout(function() { PlayerEngine.play(currentUrl); }, 500); 
+                setTimeout(function() { PlayerEngine.play(currentUrl); }, 1000); // 1s de respiro
             },
             
             hardStop: function(isRetry) { 
