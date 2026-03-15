@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     
-    <title>IPTV SMARTERS PRO - PHILCO EDITION</title>
+    <title>IPTV SMARTERS PRO - ENTERPRISE EDITION</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -24,27 +24,29 @@
             -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none;           
         }
         
-        /* OTIMIZAÇÃO DE MEMÓRIA MAXIMA PARA A PHILCO (GPU liberada) */
+        /* OTIMIZAÇÃO EMPRESARIAL - GPU FORÇADA */
         html, body {
             background: #000000; 
             color: #ffffff; font-family: 'Montserrat', sans-serif;
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             overflow: hidden !important;
-            transform: translateZ(0); /* Força aceleração de hardware leve */
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
 
         .hide { display: none !important; }
         .flex-center { display: flex; align-items: center; justify-content: center; }
-        .layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: transparent; will-change: opacity; }
+        .layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: transparent; will-change: opacity, transform; }
 
         button, .smart-card, .cat-item, .item, .power-btn, .key, .toggle-btn { cursor: pointer; }
         
         .cat-list, .item-list, .meta { 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
+            will-change: transform;
         }
 
-        /* OTIMIZAÇÃO FOCO EXTREMA - Sem sombras, sem escala (Rápido na TV) */
+        /* FOCO INSTANTÂNEO SEM LAG DE RENDERIZAÇÃO */
         .focused { 
             border: 3px solid #fff !important; 
             background: #FFD700 !important; 
@@ -52,13 +54,13 @@
             z-index: 50; 
             box-shadow: none !important;
             transform: none !important;
+            transition: none !important; /* Remove delay de transição para Smart TV fraca */
         }
         .focused i, .focused span, .focused div { color: #000 !important; }
         
         #vid-box.focused { border: 4px solid var(--gold-main) !important; background: transparent !important; }
         #vid-box.fs, #vid-box.fs.focused { border: none !important; width: 100% !important; height: 100% !important; z-index: 9999 !important; position: fixed !important; top: 0 !important; left: 0 !important; background: #000 !important; }
 
-        /* Estilos Padrão */
         .login-box { 
             width: 450px; max-width: 90%; padding: 40px; 
             background: #0a0a0a; border: 2px solid #FFD700; border-radius: 12px; 
@@ -83,12 +85,7 @@
         .power-btn { width: 7vh; height: 7vh; font-size: 3.5vh; background: transparent; border: none; color: #666; display: flex; align-items: center; justify-content: center; }
 
         .dash-grid { display: flex; gap: 4vw; justify-content: center; align-items: center; flex: 1; width: 100%; }
-        .smart-card { 
-            width: 24vw; height: 50vh; 
-            background: #101010; 
-            border: 1px solid #333; border-radius: 2.5vh; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        }
+        .smart-card { width: 24vw; height: 50vh; background: #101010; border: 1px solid #333; border-radius: 2.5vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .smart-card i { font-size: 15vh; margin-bottom: 4vh; color: #444; }
         .smart-card span { font-size: 3.5vh; font-weight: 900; color: #fff; text-transform: uppercase; }
         .bottom-bar { display: flex; justify-content: space-between; margin-top: auto; padding-bottom: 1vh; }
@@ -115,25 +112,23 @@
         .item.playing { color: var(--gold-main); background: #111; border-left: 4px solid var(--gold-main); }
         .fav-icon { float: right; color: var(--gold-main); }
 
-        /* PLAYER LIMPO E ESCURO - SEM CACHE EXTRA */
+        /* PLAYER BLINDADO - FUNDO PRETO SÓLIDO */
         .vid-box { 
             width: 100%; height: 50vh; background: #000; position: relative; border-bottom: 2px solid #222; overflow: hidden; 
             touch-action: manipulation; 
         }
         
         #player-container { width:100%; height:100%; background:#000; }
-        video { 
-            width: 100%; height: 100%; object-fit: fill; background: #000; z-index: 1;
-        }
+        video { width: 100%; height: 100%; object-fit: fill; background: #000; z-index: 1; }
 
-        /* BUFFER INTELIGENTE */
+        /* BUFFER PREMIUM "ANTI-TELA PRETA" */
         .buffer-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(10, 10, 10, 0.95);
             z-index: 50; display: none;
             flex-direction: column; align-items: center; justify-content: center;
         }
-        .buffer-msg { color: #fff; font-weight: 900; margin-top: 10px; font-size: 2vh; text-shadow: 1px 1px 0 #000; }
+        .buffer-msg { color: #fff; font-weight: 900; margin-top: 15px; font-size: 2.5vh; text-shadow: 2px 2px 4px #000; letter-spacing: 1px; }
 
         .meta { padding: 25px; flex: 1; background: #0a0a0c; display: flex; flex-direction: column; }
         .meta-title { font-size: var(--font-lg); color: var(--gold-main); font-weight: 900; margin-bottom: 1vh; }
@@ -144,27 +139,17 @@
         .dot { width: 1.2vh; height: 1.2vh; border-radius: 50%; flex-shrink: 0; margin-right: 1.2vw; }
 
         #loader { background: #000; z-index: 20000; flex-direction: column; color: var(--gold-main); font-weight: 900; font-size: var(--font-lg); }
-        
-        /* OSD OCULTO E CAMADA DE PAUSE */
         .osd-status { display: none !important; } 
         #pause-layer { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); z-index: 9000; align-items: center; justify-content: center; pointer-events: none; }
         
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #333; }
         
-        /* ROTATE */
         #rotate-layer { display: none; background: #000; z-index: 99999; flex-direction: column; text-align: center; }
         .rotate-icon { font-size: 10vh; color: var(--gold-main); margin-bottom: 3vh; animation: rotate-phone 2s infinite ease-in-out; }
         .rotate-msg { font-size: 3vh; font-weight: 900; color: #fff; }
-        @keyframes rotate-phone { 
-            0%, 100% { transform: rotate(0deg); opacity: 0; } 
-            25%, 50% { transform: rotate(-90deg); opacity: 1; } 
-            75% { transform: rotate(-90deg); opacity: 0; } 
-        }
-        @media screen and (orientation: portrait) {
-            #rotate-layer { display: flex !important; }
-            #login-layer, #dash-layer, #content-layer, #settings-layer, #loader { display: none !important; }
-        }
+        @keyframes rotate-phone { 0%, 100% { transform: rotate(0deg); opacity: 0; } 25%, 50% { transform: rotate(-90deg); opacity: 1; } 75% { transform: rotate(-90deg); opacity: 0; } }
+        @media screen and (orientation: portrait) { #rotate-layer { display: flex !important; } #login-layer, #dash-layer, #content-layer, #settings-layer, #loader { display: none !important; } }
     </style>
 </head>
 <body onload="App.init()">
@@ -181,7 +166,7 @@
 
     <div id="login-layer" class="layer flex-center hide">
         <div class="login-box">
-            <div class="logo-txt"><span style="color:#fff">IPTV</span>&nbsp;<span class="gold-text">PHILCO MAX</span></div>
+            <div class="logo-txt"><span style="color:#fff">IPTV</span>&nbsp;<span class="gold-text">ENTERPRISE</span></div>
             <input type="text" id="i0" class="inp focusable" placeholder="URL DNS" autocomplete="off">
             <input type="text" id="i1" class="inp focusable" placeholder="USUÁRIO" autocomplete="off">
             <input type="password" id="i2" class="inp focusable" placeholder="SENHA" autocomplete="off">
@@ -213,7 +198,7 @@
 
     <div id="dash-layer" class="layer hide">
         <div class="top-bar">
-            <div class="dash-logo"><span style="color:#fff">IPTV</span>&nbsp;<span class="gold-text">PHILCO MAX</span></div>
+            <div class="dash-logo"><span style="color:#fff">IPTV</span>&nbsp;<span class="gold-text">ENTERPRISE</span></div>
             <div class="dash-clock">
                 <div id="clock-time" class="clock-time">12:00</div>
                 <div id="clock-date" class="clock-date">--/--/----</div>
@@ -258,16 +243,16 @@
                 </div>
                 
                 <div id="smart-buffer" class="buffer-overlay">
-                    <i class="fas fa-sync fa-spin" style="font-size: 4vh; color: var(--gold-main);"></i>
-                    <div class="buffer-msg" id="buffer-text">AJUSTANDO SINAL...</div>
+                    <i class="fas fa-satellite-dish fa-beat-fade" style="font-size: 5vh; color: var(--gold-main); margin-bottom: 10px;"></i>
+                    <div class="buffer-msg" id="buffer-text">ESTABILIZANDO SINAL...</div>
                 </div>
 
                 <div id="pause-layer"><i class="fas fa-pause" style="font-size: 10vh; color: rgba(255, 255, 255, 0.8); text-shadow: 0 0 10px #000;"></i></div>
             </div>
             
             <div class="meta">
-                <div id="meta-title" class="meta-title"><span style="color:#fff">IPTV</span>&nbsp;PHILCO MAX</div>
-                <div id="meta-desc" class="meta-desc">Modo Anti-Travamento Ativado</div>
+                <div id="meta-title" class="meta-title"><span style="color:#fff">IPTV</span>&nbsp;ENTERPRISE</div>
+                <div id="meta-desc" class="meta-desc">Motor Híbrido Ativado - 24/7</div>
                 
                 <div class="keys">
                     <div class="key" id="key-fs"><div class="dot" style="background-color:#FF0000;"></div> TELA CHEIA (R)</div>
@@ -280,7 +265,7 @@
     </div>
 
     <script>
-        /* === ROBÔ TÉCNICO V11 EXTREME OOM KILLER (OTIMIZADO PARA PHILCO PTV24) === */
+        /* === ROBÔ TÉCNICO V13 ENTERPRISE - OTIMIZAÇÃO EXTREMA PHILCO 24/7 === */
         
         function safePlay(vidElement) {
             if (!vidElement) return;
@@ -337,7 +322,6 @@
                 };
                 
                 this.video.onerror = function() { PlayerEngine.handleError(false); };
-                
                 this.video.addEventListener('playing', function() { PlayerEngine.onPlaySuccess(); });
                 this.video.addEventListener('waiting', function() { PlayerEngine.showBuffer('CARREGANDO...'); });
 
@@ -345,19 +329,20 @@
                 this.video.setAttribute('playsinline', 'true');
             },
 
-            // TÁTICA NUCLEAR CONTRA MEMÓRIA CHEIA NA PHILCO
+            // RECONEXÃO LIMPA SEM DERRUBAR TELA CHEIA E MASCARADA COM O BUFFER
             resetDOM: function() {
                 var container = document.getElementById('player-container');
                 if(container) {
+                    this.showBuffer('SINTONIZANDO...'); // Máscara Anti-Tela Preta
+                    
                     if(this.video) {
                         this.video.pause();
                         this.video.removeAttribute('src');
                         try { this.video.load(); } catch(e){}
-                        this.video = null; // Remove referência
+                        this.video = null;
                     }
-                    container.innerHTML = ''; // Limpa o DOM para o Garbage Collector limpar a RAM
+                    container.innerHTML = ''; 
                     
-                    // Pequeno atraso para a TV respirar antes de criar o vídeo de novo
                     setTimeout(function() {
                         var newVid = document.createElement('video');
                         newVid.id = 'player';
@@ -367,12 +352,12 @@
                         newVid.style.background = '#000';
                         newVid.playsInline = true;
                         newVid.webkitPlaysInline = true;
-                        newVid.preload = "none"; // Evita cache desnecessário
+                        newVid.preload = "none";
                         newVid.poster = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
                         container.appendChild(newVid);
                         PlayerEngine.bindVideo();
                         if (PlayerEngine.url) PlayerEngine.play(PlayerEngine.url, true);
-                    }, 200);
+                    }, 250);
                 }
             },
 
@@ -415,7 +400,6 @@
                 if(el) el.style.display = 'none';
             },
             
-            // TÁTICA ANTI-TELA PRETA: Muito mais agressivo
             startMonitor: function() {
                 this.stopMonitor();
                 this.monitorTimer = setInterval(function() {
@@ -423,11 +407,10 @@
                     
                     if(Math.abs(v.currentTime - PlayerEngine.lastTime) < 0.1) {
                         PlayerEngine.stallCount++;
-                        if(PlayerEngine.stallCount > 3) {
+                        if(PlayerEngine.stallCount > 4) {
                             PlayerEngine.showBuffer('SINAL FRACO...');
                         }
-                        // Se travar por 8 segundos, força limpeza nuclear
-                        if(PlayerEngine.stallCount > 6) {
+                        if(PlayerEngine.stallCount > 8 && App.currentMode === 'live') {
                             PlayerEngine.stallCount = 0; 
                             PlayerEngine.handleError(true); 
                         }
@@ -436,7 +419,7 @@
                         PlayerEngine.lastTime = v.currentTime; 
                         if(PlayerEngine.isBuffering) PlayerEngine.hideBuffer();
                     }
-                }, 1500);
+                }, 1000); // Checagem mais ágil (1 segundo)
             },
             stopMonitor: function() { if(this.monitorTimer) clearInterval(this.monitorTimer); },
             
@@ -446,11 +429,14 @@
 
                 if (this.retryCount < limit) {
                     this.retryCount++;
-                    this.showBuffer('RECUPERANDO SINAL (' + this.retryCount + ')...');
+                    this.showBuffer('RECONECTANDO (' + this.retryCount + ')...');
 
-                    // Na Philco, recriar o DOM frequentemente salva a memória
-                    this.resetDOM(); 
-                    
+                    if (isLive) {
+                        this.resetDOM(); 
+                    } else {
+                        var delay = this.retryCount > 5 ? 3000 : 1000;
+                        setTimeout(function() { PlayerEngine.play(PlayerEngine.url, true); }, delay);
+                    }
                 } else {
                     this.hardStop();
                 }
@@ -458,7 +444,14 @@
 
             hardReset: function() { 
                 if(!this.url) return; 
-                this.resetDOM(); // Chama a limpeza extrema ao invés do stop simples
+                if (App.currentMode === 'live') {
+                    this.resetDOM(); 
+                } else {
+                    var currentUrl = this.url; 
+                    this.hardStop(); 
+                    this.retryCount = 0; 
+                    setTimeout(function() { PlayerEngine.play(currentUrl); }, 500); 
+                }
             },
             
             hardStop: function(isRetry) { 
@@ -479,7 +472,7 @@
         var App = {
             validCategories: null, scr: 0, zone: 0, idx: 0, lastCatIdx: 0, creds: {}, fullData: [], globalData: null, playingId: null,
             cfg: { filter: false, format: 'ts_native', lang: 'pt' }, userInfo: null, lastEnter: 0, touchTimer: null,
-            seriesDataCache: null, lastSeriesIdx: 0, sessionStartTime: null, refreshInterval: 2 * 60 * 60 * 1000, // Força reload a cada 2h para TV não queimar memória
+            seriesDataCache: null, lastSeriesIdx: 0, sessionStartTime: null, refreshInterval: 2 * 60 * 60 * 1000, 
             refreshTimer: null, lastTap: 0, tapTimer: null, pageSize: 100, mobileRenderedPages: 1,
 
             pad: function(n) { return (n < 10) ? ("0" + n) : n; },
@@ -550,13 +543,20 @@
                 localStorage.setItem('rc_session_start', this.sessionStartTime.toString()); localStorage.setItem('rc_refresh_interval', this.refreshInterval.toString());
             },
 
-            // REFRESH FORÇADO PARA SALVAR A TV PHILCO
+            // REFRESH EMPRESARIAL: NÃO DA RELOAD NA PÁGINA, SÓ ZERA O VÍDEO
             performAutoRefresh: function() { 
-                PlayerEngine.hardStop(); 
-                localStorage.removeItem('rc_session_start'); 
-                localStorage.removeItem('rc_refresh_interval'); 
-                // Dá um reload bruto na página para limpar a RAM da TV a cada X horas
-                setTimeout(function() { window.location.reload(true); }, 500); 
+                if (App.currentMode !== 'live' || !PlayerEngine.url) {
+                    App.sessionStartTime = Date.now();
+                    if (App.refreshTimer) clearTimeout(App.refreshTimer);
+                    App.refreshTimer = setTimeout(function() { App.performAutoRefresh(); }, App.refreshInterval);
+                    return;
+                }
+                
+                // Em vez de recarregar a página e fechar o full screen, fazemos um flush invisível
+                PlayerEngine.resetDOM();
+                App.sessionStartTime = Date.now();
+                if (App.refreshTimer) clearTimeout(App.refreshTimer);
+                App.refreshTimer = setTimeout(function() { App.performAutoRefresh(); }, App.refreshInterval);
             },
 
             checkExistingSession: function() {
@@ -668,7 +668,7 @@
                 this.req(this.creds.h+"/player_api.php?username="+this.creds.u+"&password="+this.creds.p+"&action="+actionStrm, function(d){ if(d && d!=='ERR_NET') { App.globalData = d; App.countGlobal(); } });
             },
             
-            resetInfo: function() { document.getElementById('meta-title').innerHTML = '<span style="color:#fff">IPTV</span>&nbsp;PHILCO MAX'; document.getElementById('meta-desc').innerText = "Modo Anti-Travamento Ativado"; var v = document.getElementById('player'); if(v){v.removeAttribute('src'); v.load();} document.getElementById('pause-layer').style.display = 'none'; },
+            resetInfo: function() { document.getElementById('meta-title').innerHTML = '<span style="color:#fff">IPTV</span>&nbsp;ENTERPRISE'; document.getElementById('meta-desc').innerText = "Motor Híbrido Ativado - 24/7"; var v = document.getElementById('player'); if(v){v.removeAttribute('src'); v.load();} document.getElementById('pause-layer').style.display = 'none'; },
             catClick: function(i) { this.idx=i; this.zone=0; this.loadContent(i); requestNativeFullscreen(); },
 
             loadContent: function(catIdx) {
